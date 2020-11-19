@@ -1,0 +1,31 @@
+# Configuration for DI
+services:
+  # Controllers
+  TrelloController:
+    class: app/controllers/v1
+    main: TrelloController
+    arguments: ['@TrelloService', '@DiscordMessageJob']
+
+  # Jobs
+  DiscordMessageJob:
+    class: app/jobs
+    main: DiscordMessageJob
+
+  # Middlewares
+  AuthMiddleware:
+    class: app/middlewares
+    main: AuthMiddleware
+  ErrorMiddleware:
+    class: app/middlewares
+    main: ErrorMiddleware
+
+  # Routes
+  TrelloRouter:
+    class: app/routes
+    main: TrelloRouter
+    arguments: ['@TrelloController', '@ErrorMiddleware', '@AuthMiddleware']
+
+  # Services
+  TrelloService:
+    class: app/services
+    main: TrelloService
