@@ -1,28 +1,17 @@
-import { MessageAttachment } from 'discord.js'
+import type {
+  APIEmbed,
+  RESTPostAPIWebhookWithTokenJSONBody
+} from 'discord-api-types/v9'
 import { injectable } from 'inversify'
 import { trelloUtil } from '../util'
 
 const { downloadAttachment } = trelloUtil
 
-const ACTION_STRINGS = {
-  createCard: 'new card',
-  updateCard: 'new action',
-  updateCheckItemStateOnCard: 'checklist update',
-  commentCard: 'new comment',
-  addAttachmentToCard: 'new attachment',
-  addChecklistToCard: 'new checklist',
-  addLabelToCard: 'new label',
-  removeLabelFromCard: 'label removed',
-  deleteAttachmentFromCard: 'attachment removed'
-}
-
 @injectable()
 export default class TrelloService {
-  public async getActionPayload (action: any): Promise<any | undefined> {
-    if (!(action.type in ACTION_STRINGS)) {
-      return
-    }
-
+  public async getActionPayload (
+    action: any
+  ): Promise<RESTPostAPIWebhookWithTokenJSONBody & { files?: Record<string, Buffer> } | undefined> {
     const actionBody = await TrelloService.getActionBody(action)
     if (typeof actionBody === 'undefined') {
       return
@@ -38,14 +27,14 @@ export default class TrelloService {
       url: actionUrl,
       color: 31424
     }
-    if (typeof actionBody.file !== 'undefined') {
+
+    if ('files' in actionBody) {
       return {
         embeds: [{
           ...baseEmbed,
-          ...actionBody.body,
+          ...actionBody.embed
         }],
-        // @ts-expect-error
-        files: [new MessageAttachment(...actionBody.file)]
+        files: actionBody.files
       }
     } else {
       return {
@@ -57,7 +46,9 @@ export default class TrelloService {
     }
   }
 
-  private static async getActionBody (action: any): Promise<any | undefined> {
+  private static async getActionBody (
+    action: any
+  ): Promise<APIEmbed | { embed: APIEmbed, files: Record<string, Buffer> } | undefined> {
     const boardSlug = `[${action.data.board.name}]`
     switch (action.type) {
       case 'createCard': {
@@ -100,14 +91,14 @@ export default class TrelloService {
 
       case 'addAttachmentToCard': {
         return {
-          body: {
+          embed: {
             title: `${boardSlug} Attachment added to card: ${action.data.card.name}`,
             description: `[${action.data.attachment.name}](${action.data.attachment.url}):`,
             image: typeof action.data.attachment.previewUrl !== 'undefined'
               ? { url: `attachment://${action.data.attachment.name}` }
               : undefined
           },
-          file: [await downloadAttachment(action.data.attachment.url), action.data.attachment.name]
+          files: { [action.data.attachment.name]: await downloadAttachment(action.data.attachment.url) }
         }
       }
 

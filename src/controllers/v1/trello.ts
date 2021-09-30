@@ -38,13 +38,8 @@ export default class TrelloController extends BaseHttpController implements inte
   public async postWebhook (@requestBody() body: { action: any }): Promise<results.StatusCodeResult> {
     console.log(JSON.stringify(body, null, '\t'))
     const payload = await this.trelloService.getActionPayload(body.action)
-    try {
-      if (typeof payload !== 'undefined') {
-        console.log(payload)
-        await this.discordMessageJob.run(payload)
-      }
-    } catch (err) {
-      console.error(err)
+    if (typeof payload !== 'undefined') {
+      await this.discordMessageJob.run({ ...payload, files: undefined }, payload.files)
     }
     return this.statusCode(200)
   }
@@ -53,8 +48,8 @@ export default class TrelloController extends BaseHttpController implements inte
     switch (method) {
       case 'postWebhook':
         return [
-          body('action').exists(),
-          body('model').exists()
+          body('action').exists().isObject(),
+          body('model').exists().isObject()
         ]
 
       default:
