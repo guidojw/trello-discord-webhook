@@ -1,5 +1,9 @@
-/.idea/*
-/node_modules
 .env
-ecosystem.config.js
 *.key
+
+node_modules
+dist
+yarn-error.log
+
+ecosystem.config.js
+.idea
