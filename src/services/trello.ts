@@ -49,34 +49,40 @@ export default class TrelloService {
   private static async getActionBody (
     action: any
   ): Promise<APIEmbed | { embed: APIEmbed, files: Record<string, Buffer> } | undefined> {
-    const boardSlug = `[${action.data.board.name}]`
+    const card = action.data.card
+    const cardSlug = `[${action.data.board.name}: ${card.name}]`
     switch (action.type) {
       case 'createCard': {
         return {
-          title: `${boardSlug} Card created: ${action.data.card.name}`
+          title: `${cardSlug} Card created`
         }
       }
 
       case 'updateCard': {
-        if (typeof action.data.old.closed !== 'undefined') {
+        const oldCard = action.data.old
+        if (typeof oldCard.closed !== 'undefined') {
           return {
-            title: `${boardSlug} Card ${action.data.card.closed as boolean ? '' : 'un'}archived: ${action.data.card.name}`
+            title: `${cardSlug} Card ${card.closed as boolean ? '' : 'un'}archived`
           }
-        } else if (typeof action.data.old.desc !== 'undefined') {
+        } else if (typeof oldCard.desc !== 'undefined') {
           return {
-            title: `${boardSlug} Card description ${action.data.card.desc as string === '' ? 'deleted' : 'updated'}: ${action.data.card.name}`,
-            description: action.data.card.desc !== '' ? action.data.card.desc : undefined
+            title: `${cardSlug} Card description ${card.desc as string === '' ? 'deleted' : 'updated'}`,
+            description: card.desc !== '' ? card.desc : undefined
+          }
+        } else if (typeof oldCard.name !== 'undefined') {
+          return {
+            title: `[${action.data.board.name}: ${oldCard.name}] Card renamed`,
+            description: action.data.card.name
           }
         }
-        return undefined
+        return
       }
 
       case 'addLabelToCard': {
-        let labelName = action.data.label.name
-        labelName = labelName !== '' ? labelName : action.data.label.color
+        const label = action.data.label
         return {
-          title: `${boardSlug} Label added to card: ${action.data.card.name}`,
-          description: labelName.toUpperCase()
+          title: `${cardSlug} Label added`,
+          description: (label.name !== '' ? label.name : label.color).toUpperCase()
         }
       }
 
@@ -84,28 +90,61 @@ export default class TrelloService {
         let labelName = action.data.label.name
         labelName = labelName !== '' ? labelName : action.data.label.color
         return {
-          title: `${boardSlug} Label removed from card: ${action.data.card.name}`,
+          title: `${cardSlug} Label removed`,
           description: labelName.toUpperCase()
         }
       }
 
       case 'addAttachmentToCard': {
+        const attachment = action.data.attachment
         return {
           embed: {
-            title: `${boardSlug} Attachment added to card: ${action.data.card.name}`,
-            description: `[${action.data.attachment.name}](${action.data.attachment.url}):`,
-            image: typeof action.data.attachment.previewUrl !== 'undefined'
-              ? { url: `attachment://${action.data.attachment.name}` }
+            title: `${cardSlug} Attachment added`,
+            description: `[${attachment.name}](${attachment.url}):`,
+            image: typeof attachment.previewUrl !== 'undefined'
+              ? { url: `attachment://${attachment.name}` }
               : undefined
           },
-          files: { [action.data.attachment.name]: await downloadAttachment(action.data.attachment.url) }
+          files: { [attachment.name]: await downloadAttachment(attachment.url) }
         }
       }
 
       case 'deleteAttachmentFromCard': {
         return {
-          title: `${boardSlug} Attachment deleted from card: ${action.data.card.name}`,
-          description: `${action.data.attachment.name}`
+          title: `${cardSlug} Attachment deleted`,
+          description: action.data.attachment.name
+        }
+      }
+
+      case 'addChecklistToCard': {
+        return {
+          title: `${cardSlug} Checklist added`,
+          description: action.data.checklist.name
+        }
+      }
+
+      case 'updateChecklist': {
+        if (typeof action.data.old.name !== 'undefined') {
+          return {
+            title: `${cardSlug} Checklist renamed`,
+            description: action.data.checklist.name
+          }
+        }
+        return
+      }
+
+      case 'removeChecklistFromCard': {
+        return {
+          title: `${cardSlug} Checklist removed`,
+          description: action.data.checklist.name
+        }
+      }
+
+      case 'updateCheckItemStateOnCard': {
+        const checkItem = action.data.checkItem
+        return {
+          title: `${cardSlug} Check item marked as ${checkItem.state}`,
+          description: `${action.data.checklist.name}: ${checkItem.name}`
         }
       }
 
