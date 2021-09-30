@@ -1,13 +1,12 @@
-FROM node:14.15.0
+FROM node:16.9.1
 
-# Install dependencies
 WORKDIR /opt/app
-COPY package*.json ./
-RUN npm install
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile --production=false
 
-# Bundle app source
 COPY . .
+RUN yarn build
 
 EXPOSE 3000
 
-CMD node ./bin/www
+CMD yarn start
