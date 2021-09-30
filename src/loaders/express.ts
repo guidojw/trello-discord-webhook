@@ -28,7 +28,11 @@ export default function init (container: Container): Application {
       })
 
       app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-        errorMiddleware.sendError(res, err.statusCode ?? 500, err.message ?? 'Internal Server Error')
+        errorMiddleware.sendError(
+          res,
+          err.response?.status ?? err.statusCode ?? 500,
+          err.response?.statusText ?? err.message ?? 'Internal Server Error'
+        )
       })
     })
     .build()
