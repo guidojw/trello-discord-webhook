@@ -36,7 +36,6 @@ export default class TrelloController extends BaseHttpController implements inte
     TYPES.ErrorMiddleware
   )
   public async postWebhook (@requestBody() body: { action: any }): Promise<results.StatusCodeResult> {
-    console.log(JSON.stringify(body, null, '\t'))
     const payload = await this.trelloService.getActionPayload(body.action)
     if (typeof payload !== 'undefined') {
       await this.discordMessageJob.run({ ...payload, files: undefined }, payload.files)
