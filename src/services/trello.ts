@@ -148,6 +148,13 @@ export default class TrelloService {
         }
       }
 
+      case 'commentCard': {
+        return {
+          title: `${cardSlug} Comment added`,
+          description: action.data.text
+        }
+      }
+
       default: {
         return undefined
       }
