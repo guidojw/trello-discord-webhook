@@ -50,6 +50,9 @@ export default class TrelloService {
     action: any
   ): Promise<APIEmbed | { embed: APIEmbed, files: Record<string, Buffer> } | undefined> {
     const card = action.data.card
+    if (typeof card === 'undefined') {
+      return
+    }
     const cardSlug = `[${action.data.board.name}: ${card.name}]`
     switch (action.type) {
       case 'createCard': {
