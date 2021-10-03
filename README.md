@@ -8,8 +8,7 @@ trello-discord-webhook
 
 ## Installation
 1. Install the dependencies with `yarn install` or `npm install`.
-2. Install packages with `npm install`
-3. Copy the `.env.example` to `.env` and update the fields to reflect your environment
+2. Copy the `.env.example` to `.env` and update the fields to reflect your environment
 
 ## Usage
 * To compile the TypeScript source to `.js` files, run `yarn build` or `npm run build`.
