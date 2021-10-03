@@ -16,7 +16,7 @@ export default class AuthMiddleware extends BaseMiddleware {
       return crypto.createHmac('sha1', process.env.TRELLO_SECRET ?? '').update(content)
         .digest('base64')
     }
-    const content = JSON.stringify(req.body) + `https://${req.hostname}${req.baseUrl}`
+    const content = `${JSON.stringify(req.body)}${process.env.TRELLO_CALLBACK_URL}`
     const doubleHash = base64Digest(content)
     const headerHash = req.headers['x-trello-webhook']
 
