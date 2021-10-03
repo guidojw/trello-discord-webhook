@@ -77,6 +77,11 @@ export default class TrelloService {
             title: `[${action.data.board.name}: ${oldCard.name}] Card renamed`,
             description: action.data.card.name
           }
+        } else if (typeof oldCard.idList !== 'undefined') {
+          return {
+            title: `${cardSlug} Card moved`,
+            description: `${action.data.listBefore.name} → ${action.data.listAfter.name}`
+          }
         }
         return
       }
