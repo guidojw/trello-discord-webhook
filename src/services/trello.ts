@@ -67,7 +67,7 @@ export default class TrelloService {
           return {
             title: `${cardSlug} Card ${card.closed as boolean ? '' : 'un'}archived`
           }
-        } else if (typeof oldCard.desc !== 'undefined') {
+        } else if (typeof oldCard.desc !== 'undefined' && oldCard.desc === '') {
           return {
             title: `${cardSlug} Card description ${card.desc as string === '' ? 'deleted' : 'updated'}`,
             description: card.desc !== '' ? card.desc : undefined
