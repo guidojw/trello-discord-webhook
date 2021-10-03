@@ -32,7 +32,7 @@ export default class TrelloController extends BaseHttpController implements inte
   @httpPost(
     '/',
     ...TrelloController.validate('postWebhook'),
-    // TYPES.AuthMiddleware,
+    TYPES.AuthMiddleware,
     TYPES.ErrorMiddleware
   )
   public async postWebhook (@requestBody() body: { action: any }): Promise<results.StatusCodeResult> {
