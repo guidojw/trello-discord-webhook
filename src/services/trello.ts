@@ -50,6 +50,9 @@ export default class TrelloService {
     action: any
   ): Promise<APIEmbed | { embed: APIEmbed, files: Record<string, Buffer> } | undefined> {
     const card = action.data.card
+    if (typeof card === 'undefined') {
+      return
+    }
     const cardSlug = `[${action.data.board.name}: ${card.name}]`
     switch (action.type) {
       case 'createCard': {
@@ -64,7 +67,7 @@ export default class TrelloService {
           return {
             title: `${cardSlug} Card ${card.closed as boolean ? '' : 'un'}archived`
           }
-        } else if (typeof oldCard.desc !== 'undefined') {
+        } else if (typeof oldCard.desc !== 'undefined' && oldCard.desc === '') {
           return {
             title: `${cardSlug} Card description ${card.desc as string === '' ? 'deleted' : 'updated'}`,
             description: card.desc !== '' ? card.desc : undefined
@@ -73,6 +76,11 @@ export default class TrelloService {
           return {
             title: `[${action.data.board.name}: ${oldCard.name}] Card renamed`,
             description: action.data.card.name
+          }
+        } else if (typeof oldCard.idList !== 'undefined') {
+          return {
+            title: `${cardSlug} Card moved`,
+            description: `${action.data.listBefore.name} → ${action.data.listAfter.name}`
           }
         }
         return
@@ -145,6 +153,13 @@ export default class TrelloService {
         return {
           title: `${cardSlug} Check item marked as ${checkItem.state}`,
           description: `${action.data.checklist.name}: ${checkItem.name}`
+        }
+      }
+
+      case 'commentCard': {
+        return {
+          title: `${cardSlug} Comment added`,
+          description: action.data.text
         }
       }
 
