@@ -8,9 +8,11 @@ trello-discord-webhook
 
 ## Installation
 1. Install the dependencies with `yarn install` or `npm install`.
-2. Copy the `.env.example` to `.env` and update the fields to reflect your environment
+2. Run `node create-new-config.js` and follow the steps
 
 ## Usage
 * To compile the TypeScript source to `.js` files, run `yarn build` or `npm run build`.
 * To start the server, run `yarn start` or `npm start`.
 * The project is now accessible [http://localhost:3000](http://localhost:3000).
+* You should now make sure that it gets a domain and SSL so you can use it
+

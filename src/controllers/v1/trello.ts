@@ -5,6 +5,7 @@ import {
   httpPost,
   interfaces,
   requestBody,
+  requestParam,
   results
 } from 'inversify-express-utils'
 import { ValidationChain, body } from 'express-validator'
@@ -24,21 +25,21 @@ export default class TrelloController extends BaseHttpController implements inte
   @tagged('job', 'discordMessage')
   private readonly discordMessageJob!: BaseJob
 
-  @httpHead('/')
+  @httpHead('/:id')
   public head (): results.StatusCodeResult {
     return this.statusCode(200)
   }
 
   @httpPost(
-    '/',
+    '/:id',
     ...TrelloController.validate('postWebhook'),
     TYPES.AuthMiddleware,
     TYPES.ErrorMiddleware
   )
-  public async postWebhook (@requestBody() body: { action: any }): Promise<results.StatusCodeResult> {
-    const payload = await this.trelloService.getActionPayload(body.action)
+  public async postWebhook (@requestParam('id') id: string, @requestBody() body: { action: any }): Promise<results.StatusCodeResult> {
+    const payload = await this.trelloService.getActionPayload(body.action, id);
     if (typeof payload !== 'undefined') {
-      await this.discordMessageJob.run({ ...payload, files: undefined }, payload.files)
+      await this.discordMessageJob.run({ ...payload, files: undefined }, payload.files, id)
     }
     return this.statusCode(200)
   }
