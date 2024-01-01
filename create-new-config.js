@@ -34,7 +34,7 @@ readline.question(' - Please enter the URL where you are going to host this (you
 								TRELLO_CALLBACK_URL: `${appURL}/v1/trello/${appId}`
 							}
 
-							fs.writeFileSync(filepath, JSON.stringify(currentconfig));
+							fs.writeFileSync(filepath, JSON.stringify(currentconfig, null, 2));
 
 							const service = currentconfig.services[appId];
 							axios.post(`https://api.trello.com/1/tokens/${service.TRELLO_TOKEN}/webhooks/`,{
