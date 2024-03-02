@@ -8,6 +8,7 @@ import { constants } from '../util'
 import helmet from 'helmet'
 import hpp from 'hpp'
 import logger from 'morgan'
+import path from 'node:path'
 
 const { TYPES } = constants
 
@@ -19,6 +20,12 @@ export default function init (container: Container): Application {
       app.use(express.urlencoded({ extended: false }) as RequestHandler)
       app.use(helmet() as RequestHandler)
       app.use(hpp())
+      app.use(function (_, res,n) {
+         res.setHeader('Access-Control-Allow-Origin', '*');
+         res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+         n();
+      })
+      app.get('/icon.png', (_, res) => {res.sendFile(path.join(__dirname, '../../icon.png'))})
     })
     .setErrorConfig(app => {
       const errorMiddleware = container.get<ErrorMiddleware>(TYPES.ErrorMiddleware)

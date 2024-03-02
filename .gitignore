@@ -1,4 +1,4 @@
-.env
+config.json
 *.key
 
 node_modules

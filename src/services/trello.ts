@@ -10,9 +10,10 @@ const { downloadAttachment } = trelloUtil
 @injectable()
 export default class TrelloService {
   public async getActionPayload (
-    action: any
+    action: any,
+    id: string
   ): Promise<RESTPostAPIWebhookWithTokenJSONBody & { files?: Record<string, Buffer> } | undefined> {
-    const actionBody = await TrelloService.getActionBody(action)
+    const actionBody = await TrelloService.getActionBody(action, id)
     if (typeof actionBody === 'undefined') {
       return
     }
@@ -47,7 +48,8 @@ export default class TrelloService {
   }
 
   private static async getActionBody (
-    action: any
+    action: any,
+    id: string
   ): Promise<APIEmbed | { embed: APIEmbed, files: Record<string, Buffer> } | undefined> {
     const card = action.data.card
     if (typeof card === 'undefined') {
@@ -113,7 +115,7 @@ export default class TrelloService {
               ? { url: `attachment://${attachment.name}` }
               : undefined
           },
-          files: { [attachment.name]: await downloadAttachment(attachment.url) }
+          files: { [attachment.name]: await downloadAttachment(attachment.url, id) }
         }
       }
 

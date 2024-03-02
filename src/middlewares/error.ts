@@ -14,11 +14,7 @@ export default class ErrorMiddleware extends BaseMiddleware {
     }
     this.sendErrors(res, 422, errors
       .array({ onlyFirstError: true })
-      .map(({ param, location, msg }) => ({
-        param,
-        location,
-        message: msg
-      }))
+      .map((e) => ({ ...e, message: e.msg }))
     )
   }
 
